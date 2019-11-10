@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { getJwt } from '../Helpers/Jwt';
 import { withRouter } from 'react-router-dom';
+import { connect } from 'react-redux';
 import Axios from 'axios';
 
 class AuthenticatedComponent extends Component {
@@ -16,17 +17,10 @@ class AuthenticatedComponent extends Component {
         const jwt = getJwt ();
         if (!jwt){
             this.props.history.push('/LoginPage');
+        }else{
+            this.props.history.push('/Home');
+            this.setState ({user: this.props.user})
         }
-        Axios.get ('/user/', { headers: {'x-access-token': jwt}})
-        .then (res => res.setState ({
-            user: res.data.result.userList.user, 
-        }, console.log ('sudah masuk sini'), console.log (this.user)
-        )).catch (err => {
-            console.log (err);
-            localStorage.removeItem ('cool-jwt');
-            this.props.history.push ('/LoginPage');
-            console.log ('sudah masuk error')
-        });
     }
 
     render () {
@@ -36,7 +30,6 @@ class AuthenticatedComponent extends Component {
                 <div><h1>Loading...</h1></div>
             );
         }
- 
         return (
             <div>
                 {console.log (this.props.children)}
@@ -45,4 +38,11 @@ class AuthenticatedComponent extends Component {
         )
     }
 }
-export default withRouter (AuthenticatedComponent);
+
+const mapStateToProps = state => {
+    return {
+        user: state.user.userList,
+    }
+}
+
+export default withRouter (connect (mapStateToProps) (AuthenticatedComponent));

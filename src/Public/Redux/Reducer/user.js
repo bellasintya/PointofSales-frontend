@@ -41,6 +41,8 @@ const user = (state = initialState, action) => {
                 isRejected: true,
             }
         case 'POST_USER_FULFILLED':
+            const token = action.payload.data.result.token;
+            localStorage.setItem ('x-access-token', token);
             return {
                 ...state,
                 isLoading: false,

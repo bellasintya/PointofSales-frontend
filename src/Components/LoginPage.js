@@ -11,7 +11,7 @@ import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 import { loginUser } from '../Public/Redux/Action/user';
-import { connect, useDispatch, useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
 
 function Copyright() {
@@ -65,24 +65,14 @@ function LoginPage(props) {
       [nameChange]: e.target.value
     })
   }
-
-  console.log(props.user);
   
   const dispatch = useDispatch ();
-  const result = useSelector (result => result.user.userList);
-  console.log(result);
-  
-  // const token = result.map (item => { 
-  //   return item.data.token
-  // });
-  // console.log(token);
   
 
-  const submitLogin = async (e, result) => {
+  const submitLogin = async (e) => {
     e.preventDefault();
     try {
-      await dispatch(loginUser(input))
-      localStorage.setItem ('cool-jwt', result);
+      const result = await dispatch(loginUser(input))
       props.history.push ('/Home');
     } catch (error) {
       console.log(error);
@@ -152,6 +142,5 @@ function LoginPage(props) {
     </Container>
   );
 }
-
 
 export default LoginPage;
