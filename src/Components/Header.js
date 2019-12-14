@@ -21,6 +21,8 @@ import IconButton from '@material-ui/core/IconButton';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles, useTheme } from '@material-ui/core/styles';
 import { withRouter } from 'react-router-dom';
+import { logout } from '../Public/Redux/Action/user';
+import { useDispatch } from "react-redux"
 
 const drawerWidth = 200;
 
@@ -112,7 +114,7 @@ const Header = props => {
   const theme = useTheme();
 
   const onOpen = props.open;
-  const onClose = props.onClose;
+  // const onClose = props.onClose;
   const title = props.title;
 
   const [open, setOpen] = React.useState(false);
@@ -128,25 +130,32 @@ const Header = props => {
     setOpen(false);
   };
 
+  const dispatch = useDispatch()
+
+  const userLogout = async () => {
+    await dispatch(logout());
+    props.history.push('/LoginPage');
+  }
 
   React.useEffect(() => {
     console.log(display)
   }, [display])
-  const handleProductClose = () => {
-    setShow(false);
-  };
 
-  const handleProductOpen = () => {
-    setShow(true);
-  };
+  // const handleProductClose = () => {
+  //   setShow(false);
+  // };
 
-  const handleCategoryClose = () => {
-    setDisplay(false);
-  };
+  // const handleProductOpen = () => {
+  //   setShow(true);
+  // };
 
-  const handleCategoryOpen = () => {
-    setDisplay(true);
-  };
+  // const handleCategoryClose = () => {
+  //   setDisplay(false);
+  // };
+
+  // const handleCategoryOpen = () => {
+  //   setDisplay(true);
+  // };
 
   return (
     <div className={classes.root}>
@@ -212,7 +221,7 @@ const Header = props => {
           <ListItemIcon> <SettingsIcon /> </ListItemIcon>
           <ListItemText primary="Admin Page" />
         </ListItem>
-        <ListItem button>
+        <ListItem button onClick={userLogout}>
           <ListItemIcon> <ExitToAppIcon /> </ListItemIcon>
           <ListItemText primary="Logout" />
         </ListItem>

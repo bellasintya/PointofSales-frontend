@@ -1,4 +1,6 @@
 const initialState = {
+    loginResponse: {},
+    registerResponse: {},
     userList: [],
     isLoading: false,
     isRejected: false,
@@ -41,13 +43,14 @@ const user = (state = initialState, action) => {
                 isRejected: true,
             }
         case 'POST_USER_FULFILLED':
-            const token = action.payload.data.result.token;
-            localStorage.setItem ('x-access-token', token);
+            //const response = action.payload.data;
+            //Object.assign(state.userList,response);
             return {
                 ...state,
                 isLoading: false,
                 isFulfilled: true,
                 userList: action.payload.data
+                //userList: state.userList
             }
         case 'POST_REGISTER_PENDING':
             return {
@@ -67,8 +70,15 @@ const user = (state = initialState, action) => {
                 ...state,
                 isLoading: false,
                 isFulfilled: true,
-                userList: action.payload.data
+                registerResponse: action.payload.data
             }
+        case 'USER_LOGOUT':
+            return {
+                ...state,
+                isLoading: false,
+                isRejected: false,
+                userList: null
+            };
         default:
             return state;
     }

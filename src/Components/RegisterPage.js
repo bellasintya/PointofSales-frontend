@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import Avatar from '@material-ui/core/Avatar';
+import { Alert } from 'react-bootstrap';
 import Button from '@material-ui/core/Button';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import TextField from '@material-ui/core/TextField';
@@ -13,14 +14,11 @@ import Container from '@material-ui/core/Container';
 import { registerUser } from '../Public/Redux/Action/user';
 import { connect, useDispatch, useSelector } from 'react-redux';
 
-
-function Copyright() {
+const Copyright = () => {
   return (
     <Typography variant="body2" color="textSecondary" align="center">
       <Link color="inherit" href="https://material-ui.com/">
-        
       </Link>{' '}
-      
     </Typography>
   );
 }
@@ -54,13 +52,14 @@ function RegisterPage(props) {
   const classes = useStyles();
 
   const formState = {
-    full_name : '',
+    full_name: '',
     username: '',
     email: '',
     password: '',
   };
 
   const [input, setInput] = useState(formState);
+  const [show, setShow] = useState(true);
 
   const handleChange = nameChange => e => {
     setInput({
@@ -68,14 +67,22 @@ function RegisterPage(props) {
       [nameChange]: e.target.value
     })
   }
-  
+
+  const registerResponse = useSelector(state => state.user.registerResponse);
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    if (registerResponse.status === 200) clearForm();
+  }, [registerResponse]);
+
+  const clearForm = () => {
+    setInput(formState);
+  };
 
   const submitRegister = async (e) => {
     e.preventDefault();
     try {
-      const result = await props.dispatch(registerUser(input))
-      props.history.push ('/LoginPage');
+      await dispatch(registerUser(input));
     } catch (error) {
       console.log(error);
     }
@@ -89,12 +96,34 @@ function RegisterPage(props) {
           <LockOutlinedIcon />
         </Avatar>
         <Typography component="h1" variant="h5">
-          Sign In
+          Sign Up
         </Typography>
         <form className={classes.form} noValidate>
           <Grid container spacing={2}>
           <Grid item xs={12}>
-            <TextField
+            {registerResponse.status === 400 ? (
+              <Alert
+                show={show}
+                width="100%"
+                variant="danger"
+                onClose={() => setShow(!show)}
+              >
+                <p width="100%">{registerResponse.message}</p>
+              </Alert>
+            ) : ("")}
+
+            {registerResponse.status === 200 ? (
+              <Alert
+                show={show}
+                variant="success"
+                onClose={() => setShow(!show)}
+              >
+                <p>{registerResponse.message}</p>
+              </Alert>
+            ) : ("")}
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
                 autoComplete="full_name"
                 name="full_name"
                 variant="outlined"
@@ -104,11 +133,12 @@ function RegisterPage(props) {
                 type="text"
                 label="Full Name"
                 autoFocus
-                onChange = {handleChange('full_name')}
+                onChange={handleChange('full_name')}
+                value={input.full_name}
               />
             </Grid>
             <Grid item xs={12}>
-            <TextField
+              <TextField
                 autoComplete="email"
                 name="email"
                 variant="outlined"
@@ -117,8 +147,8 @@ function RegisterPage(props) {
                 id="email"
                 type="text"
                 label="Email"
-                autoFocus
-                onChange = {handleChange('email')}
+                onChange={handleChange('email')}
+                value={input.email}
               />
             </Grid>
             <Grid item xs={12}>
@@ -127,10 +157,11 @@ function RegisterPage(props) {
                 required
                 fullWidth
                 name="username"
-                label="username"
+                label="Username"
                 type="text"
                 id="username"
-                onChange = {handleChange('username')}
+                onChange={handleChange('username')}
+                value={input.username}
               />
             </Grid>
             <Grid item xs={12}>
@@ -142,7 +173,8 @@ function RegisterPage(props) {
                 label="Password"
                 type="password"
                 id="password"
-                onChange = {handleChange('password')}
+                onChange={handleChange('password')}
+                value={input.password}
               />
             </Grid>
           </Grid>
@@ -152,14 +184,14 @@ function RegisterPage(props) {
             variant="contained"
             color="primary"
             className={classes.submit}
-            onClick = {submitRegister}
+            onClick={submitRegister}
           >
-            Sign In
+            Sign Up
           </Button>
           <Grid container justify="center">
             <Grid item>
               <Link href='/LoginPage' variant="body2">
-                Allready have an account? Sign in
+                Already have an account? Sign in
               </Link>
             </Grid>
           </Grid>
@@ -172,4 +204,4 @@ function RegisterPage(props) {
   );
 }
 
-export default connect ()(RegisterPage);
+export default connect()(RegisterPage);

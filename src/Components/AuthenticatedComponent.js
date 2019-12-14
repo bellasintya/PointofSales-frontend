@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import { getJwt } from '../Helpers/Jwt';
 import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
-import Axios from 'axios';
 
 class AuthenticatedComponent extends Component {
     constructor (props) {
@@ -17,14 +16,15 @@ class AuthenticatedComponent extends Component {
         const jwt = getJwt ();
         if (!jwt){
             this.props.history.push('/LoginPage');
-        }else{
+        }
+        else{
             this.props.history.push('/Home');
             this.setState ({user: this.props.user})
         }
     }
 
     render () {
-        console.log (this.state.user);
+        console.log ("user in authenticated", this.state.user);
         if (this.state.user === undefined) {
             return (
                 <div><h1>Loading...</h1></div>
@@ -32,7 +32,7 @@ class AuthenticatedComponent extends Component {
         }
         return (
             <div>
-                {console.log (this.props.children)}
+                {console.log ("children",this.props.children)}
                 {this.props.children}
             </div>
         )

@@ -15,11 +15,13 @@ import CardActionArea from '@material-ui/core/CardActionArea';
 import CardContent from '@material-ui/core/CardContent';
 import CardMedia from '@material-ui/core/CardMedia';
 import { getProduct } from '../Public/Redux/Action/product';
+import { getCategory } from '../Public/Redux/Action/category';
 import Button from '@material-ui/core/Button';
 
 //for cart
 import ButtonGroup from "@material-ui/core/ButtonGroup";
 import TextField from '@material-ui/core/TextField';
+import { keys } from '@material-ui/core/styles/createBreakpoints';
 
 const drawerWidth = 200;
 
@@ -121,7 +123,6 @@ const useStyles = makeStyles(theme => ({
 
 const Home = props => {
   const classes = useStyles();
-  //const theme = useTheme();
 
   const [open, setOpen] = useState(false);
 
@@ -141,12 +142,25 @@ const Home = props => {
     }
   }
 
+  const fetchCategory = async () => {
+    try {
+      await dispatch(getCategory());
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   useEffect(() => {
     fetchProduct()
   }, [])
 
+  useEffect(() => {
+    fetchCategory()
+  }, [])
+
   const dispatch = useDispatch();
   const result = useSelector(data => data.product.productList);
+  const resultCategory = useSelector(data => data.category.categoryList);
 
   return (
     <div className={classes.root}>
@@ -159,7 +173,7 @@ const Home = props => {
               <Grid container className={classes.root} spacing={1}>
                 {result !== undefined ? result.map(item => {
                   return (
-                    <Grid item xs={3} sm={3}>
+                    <Grid key={item.id_product} item xs={3} sm={3}>
                       <Card className={classes.card}>
                         <CardActionArea>
                           <CardMedia className={classes.media}>

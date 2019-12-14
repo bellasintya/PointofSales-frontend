@@ -70,6 +70,8 @@ function CategoryTable(props) {
     })
   }
 
+  const dispatch = useDispatch();
+
   //button for open dialogs and passing data
   const addCategoryModal = () => {
     setAddModal(true);
@@ -86,7 +88,6 @@ function CategoryTable(props) {
   let numb = 0;
 
   //handle dialog 
-
   const handleEditClose = () => {
     setEditModal(false)
   }
@@ -100,11 +101,10 @@ function CategoryTable(props) {
   }
 
   //passing into database
-
   const submitAdd = async (e) => {
     e.preventDefault();
     try {
-      await props.dispatch(postCategory(input))
+      const addResult = await dispatch(postCategory(input));
       setAddModal(!addModal)
     } catch (error) {
       console.log (error)
@@ -114,7 +114,8 @@ function CategoryTable(props) {
   const submitEdit = async (e) => {
     e.preventDefault();
     try {
-      const result = await props.dispatch(patchCategory(input))
+      const result = await dispatch(patchCategory(input));
+      console.log (result);
       setEditModal(!editModal)
     } catch (error) {
       console.log (error)
@@ -124,7 +125,7 @@ function CategoryTable(props) {
   const submitDelete = async (e) => {
     e.preventDefault();
     try {
-      const result = await props.dispatch(deleteCategory(input))
+      await dispatch(deleteCategory(input))
       setDeleteModal(!deleteModal)
     } catch (error) {
       console.log (error)
@@ -132,12 +133,9 @@ function CategoryTable(props) {
   }
 
   //result 
-
-  const dispatch = useDispatch();
-
   const fetchCategory = async (input) => {
     try {
-      const result = await props.dispatch(getCategory(input))
+      await dispatch(getCategory(input))
     } catch (error) {
       console.log(error);
     } 

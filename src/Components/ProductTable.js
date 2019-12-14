@@ -76,6 +76,7 @@ function ProductTable(props) {
   const submitEdit = async (e) => {
     e.preventDefault();
     try {
+      // console.log('input', input) 
       const result = await props.dispatch(patchProduct(input))
       setEditModal(!editModal)
     } catch (error) {
@@ -116,10 +117,13 @@ function ProductTable(props) {
   //dipatch and fetchProduct
 
   const dispatch = useDispatch();
+  const result = useSelector(data => data.product.productList);
+  const resultCategory = useSelector(data => data.category.categoryList);
+  console.log ("resultCategory", resultCategory);
 
   const fetchProduct = async () => {
     try {
-      const data = await dispatch(getProduct());
+      await dispatch(getProduct());
     } catch (error) {
       console.log(error);
     }
@@ -132,7 +136,7 @@ function ProductTable(props) {
 
   const fetchCategory = async (input) => {
     try {
-      const result = await props.dispatch(getCategory(input))
+      await dispatch(getCategory(input))
     } catch (error) {
       console.log(error);
     }
@@ -142,8 +146,6 @@ function ProductTable(props) {
     fetchCategory()
   }, [])
 
-  const result = useSelector(data => data.product.productList);
-  const resultCategory = useSelector(data => data.category.categoryList.result);
 
   const classes = useStyles();
   return (
@@ -167,7 +169,6 @@ function ProductTable(props) {
               </TableRow>
             </TableHead>
             <TableBody>
-              {/* {console.log('data', result)} */}
               {result !== undefined ? result.map(row => (
                 <TableRow key={row.id_product}>
                   <TableCell>{numb = numb + 1}</TableCell>

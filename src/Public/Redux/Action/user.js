@@ -12,3 +12,9 @@ export const registerUser = (form) => {
         payload: axios.post ('http://localhost:8080/user/register', form) 
     } 
 }
+export const logout = () => {
+    return {
+        type: "USER_LOGOUT", 
+        payload: localStorage.removeItem("x-access-token")
+    }
+}

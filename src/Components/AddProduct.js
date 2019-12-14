@@ -30,7 +30,7 @@ class AddProduct extends Component {
   };
 
   handleDrawerOpen = () => {
-    this.setOpen(true); 
+    this.setOpen(true);
   };
 
   handleDrawerClose = () => {
@@ -38,15 +38,13 @@ class AddProduct extends Component {
   };
 
   handleChange = (e) => {
-    console.log(e.target);
     this.setState({ [e.target.name]: e.target.value })
   }
 
   handleSubmit = async (e) => {
     e.preventDefault();
-    await this.props.dispatch(postProduct(this.state))
-    console.log(this.state);
-    this.props.history.push ('/ProductTable');
+    const result = await this.props.dispatch(postProduct(this.state));
+    this.props.history.push('/ProductTable');
   }
 
   async componentDidMount() {
@@ -78,14 +76,13 @@ class AddProduct extends Component {
       },
     }
     ));
-    console.log(this.state.data);
     return (
       <div className={classes.root}>
         <Header open={this.open} onClose={this.handleDrawerClose} title="Add Product" />
         <Container component="main" maxWidth="xs">
           <CssBaseline />
-          <br/>
-          <br/>
+          <br />
+          <br />
           <div className={classes.paper}>
             <main className={classes.content}>
               <Typography component="h1" align="center" variant="h5">
@@ -149,8 +146,7 @@ class AddProduct extends Component {
                   id="description"
                   onChange={this.handleChange}
                 />
-
-              <InputLabel id="demo-simple-select-required-label">Category</InputLabel>
+                <InputLabel id="demo-simple-select-required-label">Category</InputLabel>
                 <Select
                   labelId="demo-simple-select-required-label"
                   id="demo-simple-select-required"
@@ -160,14 +156,12 @@ class AddProduct extends Component {
                   onChange={this.handleChange}
                   fullWidth
                 >
-                  {console.log(this.state.data)}
                   {this.state.data.map(item => {
                     return (
-                      <MenuItem value={item.id_category}>{item.name}</MenuItem>
+                      <MenuItem key={item.id_category} value={item.id_category}>{item.name}</MenuItem>
                     )
                   })
                   }
-                  {/* {console.log ('halooo')} */}
                 </Select>
                 <Button
                   type="submit"
@@ -178,18 +172,18 @@ class AddProduct extends Component {
                 >
                   Add Product
                 </Button>
-                  <Grid container>
-                    <Grid item>
-                      <Link to="/ProductTable" variant="body2">
-                        {"Show All Product List"}
-                      </Link>
-                    </Grid>
+                <Grid container>
+                  <Grid item>
+                    <Link to="/ProductTable" variant="body2">
+                      {"Show All Product List"}
+                    </Link>
                   </Grid>
-                </form>
-              </main>
-            </div>
-            <Box mt={8}>
-            </Box>
+                </Grid>
+              </form>
+            </main>
+          </div>
+          <Box mt={8}>
+          </Box>
         </Container>
       </div>
     );

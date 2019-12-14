@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { Alert } from 'react-bootstrap';
 import Avatar from '@material-ui/core/Avatar';
 import Button from '@material-ui/core/Button';
 import CssBaseline from '@material-ui/core/CssBaseline';
@@ -11,17 +12,7 @@ import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 import { loginUser } from '../Public/Redux/Action/user';
-import { useDispatch, useSelector } from 'react-redux';
-
-
-function Copyright() {
-  return (
-    <Typography variant="body2" color="textSecondary" align="center">
-      <Link color="inherit" href="https://material-ui.com/">
-      </Link>{' '}
-    </Typography>
-  );
-}
+import { connect, useDispatch, useSelector } from 'react-redux';
 
 const useStyles = makeStyles(theme => ({
   '@global': {
@@ -52,33 +43,37 @@ function LoginPage(props) {
   const classes = useStyles();
 
   const formState = {
-    username:"",
-    password:"",
+    username: "",
+    password: "",
     result: ''
   };
 
   const [input, setInput] = useState(formState);
+  const [show, setShow] = useState(true);
+
+  const { loginResponse, isLoading } = useSelector(state => state.user);
+  const dispatch = useDispatch();
+
+  const submitLogin = async (e) => {
+    e.preventDefault();
+    try {
+      const result = await dispatch(loginUser(input));
+      if (result.action.payload.data.status === 200) {
+        localStorage.setItem("x-access-token", result.action.payload.data.result.token)
+        props.history.push('/Home')
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
   const handleChange = nameChange => e => {
     setInput({
       ...input,
       [nameChange]: e.target.value
     })
-  }
-  
-  const dispatch = useDispatch ();
-  
+  } 
 
-  const submitLogin = async (e) => {
-    e.preventDefault();
-    try {
-      const result = await dispatch(loginUser(input))
-      props.history.push ('/Home');
-    } catch (error) {
-      console.log(error);
-    }
-  }
-  
   return (
     <Container component="main" maxWidth="xs">
       <CssBaseline />
@@ -92,7 +87,31 @@ function LoginPage(props) {
         <form className={classes.form} noValidate>
           <Grid container spacing={2}>
             <Grid item xs={12}>
-            <TextField
+              {loginResponse.status === 400 ?
+                <Alert
+                  show={show}
+                  width="100%"
+                  variant="danger"
+                  onClose={() => setShow((false))}
+                >
+                  <p>{loginResponse.message}</p>
+                </Alert>
+                : ("")
+              }
+
+              {loginResponse.status === 200 ? (
+                <Alert
+                  show={show}
+                  variant="success"
+                  onClose={() => setShow(!show)}
+                >
+                  <p>{loginResponse.message}</p>
+                </Alert>
+              ) : ("")}
+
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
                 autoComplete="username"
                 name="username"
                 variant="outlined"
@@ -101,7 +120,9 @@ function LoginPage(props) {
                 id="username"
                 label="Username"
                 autoFocus
-                onChange = {handleChange('username')}
+                onChange={handleChange('username')}
+                value={input.username}
+
               />
             </Grid>
             <Grid item xs={12}>
@@ -113,7 +134,8 @@ function LoginPage(props) {
                 label="Password"
                 type="password"
                 id="password"
-                onChange = {handleChange('password')}
+                onChange={handleChange('password')}
+                value={input.password}
               />
             </Grid>
           </Grid>
@@ -122,25 +144,23 @@ function LoginPage(props) {
             fullWidth
             variant="contained"
             color="primary"
+            loadin={isLoading}
             className={classes.submit}
-            onClick = {submitLogin}
+            onClick={submitLogin}
           >
             Sign In
           </Button>
           <Grid container justify="center">
             <Grid item>
-              <Link href="/RegisterPage" variant="body2">
+              <Link href="/" variant="body2">
                 Didn't have an account? Sign up
               </Link>
             </Grid>
           </Grid>
         </form>
       </div>
-      <Box mt={5}>
-        <Copyright />
-      </Box>
     </Container>
   );
 }
 
-export default LoginPage;
+export default connect()(LoginPage);
