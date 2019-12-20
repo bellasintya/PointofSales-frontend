@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { makeStyles } from '@material-ui/core/styles';
+import PropTypes from 'prop-types';
+import { makeStyles, useTheme } from '@material-ui/core/styles';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
+import TableFooter from '@material-ui/core/TableFooter';
 import Paper from '@material-ui/core/Paper';
 import { getCategory } from '../Public/Redux/Action/category';
 import { postCategory, patchCategory, deleteCategory } from '../Public/Redux/Action/category';
@@ -26,6 +28,18 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 
+//for pagination
+import TablePagination from '@material-ui/core/TablePagination';
+import IconButton from '@material-ui/core/IconButton';
+import FirstPageIcon from '@material-ui/icons/FirstPage';
+import KeyboardArrowLeft from '@material-ui/icons/KeyboardArrowLeft';
+import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
+import LastPageIcon from '@material-ui/icons/LastPage';
+
+//for sort by
+import FormControl from '@material-ui/core/FormControl';
+import Select from '@material-ui/core/Select';
+import FormLabel from '@material-ui/core/FormLabel';
 
 //styling
 const useStyles = makeStyles({
@@ -33,16 +47,95 @@ const useStyles = makeStyles({
     width: '80%',
     overflowX: 'auto',
     // [top] [right] [bottom] [left]	
-    margin: '4% 1% 1% 10%',
-    alignContent: 'center'
+    margin: '3% 1% 1% 10%',
+    padding: '2%',
+    alignContent: 'center',
+    flexShrink: 0,
+
+    '& .MuiOutlinedInput-input': {
+      padding: 8,
+      fontSize: 'small',
+      minWidth: 100,
+    },
+
+    '& .MuiFormControl-root' : {
+      marginInlineEnd: '7%',
+      marginInlineStart: '7%',
+    },
+    '& .MuiFormLabel-root': {
+      fontSize: 'small',
+    }
   },
   table: {
     maxWidth: 500,
     alignContent: 'center'
   },
+  column: {
+    justifyContent: 'normal'
+  }
 });
 
+function TablePaginationActions(props) {
+  const classes = useStyles();
+  const theme = useTheme();
+  const { count, page, rowsPerPage, onChangePage } = props;
+
+  const handleFirstPageButtonClick = event => {
+    onChangePage(event, 0);
+  };
+
+  const handleBackButtonClick = event => {
+    onChangePage(event, page - 1);
+  };
+
+  const handleNextButtonClick = event => {
+    onChangePage(event, page + 1);
+  };
+
+  const handleLastPageButtonClick = event => {
+    onChangePage(event, Math.max(0, Math.ceil(count / rowsPerPage) - 1));
+  };
+
+  return (
+    <div className={classes.root}>
+      <IconButton
+        onClick={handleFirstPageButtonClick}
+        disabled={page === 0}
+        aria-label="first page"
+      >
+        {theme.direction === 'rtl' ? <LastPageIcon /> : <FirstPageIcon />}
+      </IconButton>
+      <IconButton onClick={handleBackButtonClick} disabled={page === 0} aria-label="previous page">
+        {theme.direction === 'rtl' ? <KeyboardArrowRight /> : <KeyboardArrowLeft />}
+      </IconButton>
+      <IconButton
+        onClick={handleNextButtonClick}
+        disabled={page >= Math.ceil(count / rowsPerPage) - 1}
+        aria-label="next page"
+      >
+        {theme.direction === 'rtl' ? <KeyboardArrowLeft /> : <KeyboardArrowRight />}
+      </IconButton>
+      <IconButton
+        onClick={handleLastPageButtonClick}
+        disabled={page >= Math.ceil(count / rowsPerPage) - 1}
+        aria-label="last page"
+      >
+        {theme.direction === 'rtl' ? <FirstPageIcon /> : <LastPageIcon />}
+      </IconButton>
+    </div>
+  );
+}
+
+TablePaginationActions.propTypes = {
+  count: PropTypes.number.isRequired,
+  onChangePage: PropTypes.func.isRequired,
+  page: PropTypes.number.isRequired,
+  rowsPerPage: PropTypes.number.isRequired,
+};
+
 function CategoryTable(props) {
+  const dispatch = useDispatch();
+  const classes = useStyles();
 
   //for header passing props
   const [open, setOpen] = React.useState(false);
@@ -54,6 +147,8 @@ function CategoryTable(props) {
   const formState = {
     id_category: "",
     name: "",
+    search: "",
+    sort: "",
   }
 
   //for input and open handle
@@ -70,8 +165,6 @@ function CategoryTable(props) {
     })
   }
 
-  const dispatch = useDispatch();
-
   //button for open dialogs and passing data
   const addCategoryModal = () => {
     setAddModal(true);
@@ -85,7 +178,7 @@ function CategoryTable(props) {
     setDeleteModal(true);
   }
 
-  let numb = 0;
+  // let numb = 0;
 
   //handle dialog 
   const handleEditClose = () => {
@@ -104,21 +197,20 @@ function CategoryTable(props) {
   const submitAdd = async (e) => {
     e.preventDefault();
     try {
-      const addResult = await dispatch(postCategory(input));
+      await dispatch(postCategory(input));
       setAddModal(!addModal)
     } catch (error) {
-      console.log (error)
+      console.log(error)
     }
   }
 
   const submitEdit = async (e) => {
     e.preventDefault();
     try {
-      const result = await dispatch(patchCategory(input));
-      console.log (result);
+      await dispatch(patchCategory(input));
       setEditModal(!editModal)
     } catch (error) {
-      console.log (error)
+      console.log(error)
     }
   }
 
@@ -128,26 +220,61 @@ function CategoryTable(props) {
       await dispatch(deleteCategory(input))
       setDeleteModal(!deleteModal)
     } catch (error) {
-      console.log (error)
+      console.log(error)
     }
   }
 
   //result 
   const fetchCategory = async (input) => {
     try {
+      console.log("input", input)
       await dispatch(getCategory(input))
     } catch (error) {
       console.log(error);
-    } 
+    }
   }
 
   useEffect(() => {
     fetchCategory()
   }, [])
 
+  //get result
   const result = useSelector(data => data.category.categoryList);
 
-  const classes = useStyles();
+  //for sorting
+  let sortedResult = result.sort((a, b) => {
+    const isReversed = (input.sort === 'asc') ? 1 : -1;
+    return isReversed * a.name.localeCompare(b.name);
+  });
+
+  //for searching
+  let filteredResult = sortedResult.filter((item) => {
+    return item.name.toLowerCase().indexOf(input.search.toLowerCase()) !== -1;
+  });
+
+  //for pagination
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [numb, setNumb] = useState([])
+  const emptyRows = rowsPerPage - Math.min(rowsPerPage, filteredResult.length - page * rowsPerPage);
+
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = event => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
+
+  //numbering
+  useEffect (()=> {
+    const copyNumber = []
+    for(let i = 1; i <= result.length; i++) {
+      copyNumber.push(i);
+  }
+    setNumb(copyNumber)
+  }, [page]);
 
   return (
     <div className={classes.root}>
@@ -156,7 +283,33 @@ function CategoryTable(props) {
       <main className={classes.content} >
         <div className={classes.toolbar} />
         <Paper className={classes.root} align="center">
-          <Button variant="contained" color="primary" onClick={addCategoryModal}>Add Category</Button>
+          <div className={classes.column}>
+            <FormControl className={classes.formControl}>
+              <Select
+                variant="outlined"
+                value={input.sort}
+                onChange={handleChange("sort")}
+                label="Sort by"
+              >
+                <option value=""></option>
+                <option value="asc">Name (A-Z)</option>
+                <option value="desc">Name (Z-A)</option>
+              </Select>
+            </FormControl>
+            <Button variant="contained"
+              color="primary"
+              onClick={addCategoryModal}>
+              Add Category
+            </Button>
+            <TextField
+              id="outlined-size-small"
+              size="small"
+              placeholder="Search category name"
+              variant="outlined"
+              onChange={handleChange("search")}
+              value={input.search}
+            />
+          </div>
           <Table className={classes.table} aria-label="simple table" align="center">
             <TableHead>
               <TableRow>
@@ -166,28 +319,49 @@ function CategoryTable(props) {
               </TableRow>
             </TableHead>
             <TableBody>
-              {result !== undefined ? result.map(row => (
-                <TableRow key={row.id_category}>
-                  <TableCell>{numb = numb + 1}</TableCell>
-                  <TableCell component="th" scope="row">
-                    {row.name}
-                  </TableCell>
-                  <TableCell align="right">
-                    <Button value={row.id_category} onClick={() => updateCategoryModal(row)}><EditIcon /></Button>
-                    <Button value={row.id_category} onClick={() => deleteCategoryModal(row)}><DeleteOutlineIcon /></Button>
-                  </TableCell>
+              {(rowsPerPage > 0 ? filteredResult.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                : filteredResult).map((row, index) => (
+                  <TableRow key={row.id_category}>
+                    <TableCell>{numb[index+(page*rowsPerPage)]}</TableCell>
+                    <TableCell component="th" scope="row">
+                      {row.name}
+                    </TableCell>
+                    <TableCell align="right">
+                      <Button value={row.id_category} onClick={() => updateCategoryModal(row)}><EditIcon /></Button>
+                      <Button value={row.id_category} onClick={() => deleteCategoryModal(row)}><DeleteOutlineIcon /></Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              {emptyRows > 0 && (
+                <TableRow style={{ height: 53 * emptyRows }}>
+                  <TableCell colSpan={6} />
                 </TableRow>
-              ))
-                : <img src="https://thumbs.gfycat.com/BitterEarnestBeardeddragon-small.gif" align="center" width="200px" height="200px" />
-              }
+              )}
             </TableBody>
+            <TableFooter>
+              <TableRow>
+                <TablePagination
+                  rowsPerPageOptions={[5, 10, 25, 100]}
+                  colSpan={3}
+                  count={filteredResult.length}
+                  rowsPerPage={rowsPerPage}
+                  page={page}
+                  SelectProps={{
+                    inputProps: { 'aria-label': 'rows per page' },
+                    native: true,
+                  }}
+                  onChangePage={handleChangePage}
+                  onChangeRowsPerPage={handleChangeRowsPerPage}
+                  ActionsComponent={TablePaginationActions}
+                />
+              </TableRow>
+            </TableFooter>
           </Table>
-
           {/* dialog for edit category */}
           <Dialog open={editModal} onClose={handleEditClose} aria-labelledby="form-dialog-title">
             <DialogTitle id="form-dialog-title" align="center">Edit Category</DialogTitle>
             <DialogContent>
-            <DialogContentText>
+              <DialogContentText>
                 You can edit category name here
             </DialogContentText>
               <TextField
@@ -205,7 +379,7 @@ function CategoryTable(props) {
               <Button onClick={handleEditClose} color="primary">
                 Cancel
               </Button>
-              <Button type="submit" onClick={submitEdit} color="primary">
+              <Button value={input.id_category} type="submit" onClick={submitEdit} color="primary">
                 Submit
               </Button>{' '}
             </DialogActions>
@@ -215,26 +389,15 @@ function CategoryTable(props) {
           <Dialog open={deleteModal} onClose={handleDeleteClose} aria-labelledby="form-dialog-title">
             <DialogTitle id="form-dialog-title" align="center">Edit Category</DialogTitle>
             <DialogContent>
-            <DialogContentText>
+              <DialogContentText>
                 Are you sure want to delete <b>{input.name}</b> category?
             </DialogContentText>
-              <TextField
-                disabled
-                autoFocus
-                margin="dense"
-                id="id_category"
-                label="Id Category"
-                type="text"
-                fullWidth
-                onChange={handleChange("id_category")}
-                value={input.id_category}
-              />
             </DialogContent>
             <DialogActions>
-              <Button onClick={handleDeleteClose} color="primary">
+              <Button value={input.id_category} onClick={handleDeleteClose} color="primary">
                 Cancel
               </Button>
-              <Button type="submit" onClick={submitDelete}  color="primary">
+              <Button type="submit" value={input.id_category} onClick={submitDelete} color="primary">
                 Submit
               </Button>{' '}
             </DialogActions>
@@ -244,9 +407,9 @@ function CategoryTable(props) {
           <Dialog open={addModal} onClose={handleAddClose} aria-labelledby="form-dialog-title">
             <DialogTitle id="form-dialog-title" align="center">Add Category</DialogTitle>
             <DialogContent>
-            <DialogContentText>
+              <DialogContentText>
                 Add new category name
-            </DialogContentText>
+              </DialogContentText>
               <TextField
                 autoFocus
                 margin="dense"

@@ -76,8 +76,7 @@ function ProductTable(props) {
   const submitEdit = async (e) => {
     e.preventDefault();
     try {
-      // console.log('input', input) 
-      const result = await props.dispatch(patchProduct(input))
+      await props.dispatch(patchProduct(input))
       setEditModal(!editModal)
     } catch (error) {
       console.log(error);
@@ -87,7 +86,7 @@ function ProductTable(props) {
   const submitDelete = async (e) => {
     e.preventDefault();
     try {
-      const result = await props.dispatch(deleteProduct(input))
+      await props.dispatch(deleteProduct(input))
       setDeleteModal(!deleteModal)
     } catch (error) {
       console.log(error);
@@ -275,17 +274,6 @@ function ProductTable(props) {
               <DialogContentText>
                 Are you sure want to delete <b>{input.name}</b>?
               </DialogContentText>
-              <TextField
-                disabled
-                autoFocus
-                margin="dense"
-                id="id_product"
-                label="Id Product"
-                type="text"
-                fullWidth
-                onChange={handleChange("id_product")}
-                value={input.id_product}
-              />
             </DialogContent>
             <DialogActions>
               <Button value={input.id_product} onClick={handleDeleteClose} color="primary">

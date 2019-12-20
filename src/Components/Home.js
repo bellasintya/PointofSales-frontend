@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { makeStyles, useTheme } from '@material-ui/core/styles';
+import React, { useState, useEffect, useRef } from 'react';
+import { makeStyles } from '@material-ui/core/styles';
 import Drawer from '@material-ui/core/Drawer';
 import Typography from '@material-ui/core/Typography';
 import '../Style/font/style.css';
@@ -18,6 +18,15 @@ import { getProduct } from '../Public/Redux/Action/product';
 import { getCategory } from '../Public/Redux/Action/category';
 import Button from '@material-ui/core/Button';
 
+//for search field
+import IconButton from '@material-ui/core/IconButton';
+import SearchIcon from '@material-ui/icons/Search';
+
+//for sort by
+import FormControl from '@material-ui/core/FormControl';
+import Select from '@material-ui/core/Select';
+import FormLabel from '@material-ui/core/FormLabel';
+
 //for cart
 import ButtonGroup from "@material-ui/core/ButtonGroup";
 import TextField from '@material-ui/core/TextField';
@@ -27,7 +36,19 @@ const drawerWidth = 200;
 
 const useStyles = makeStyles(theme => ({
   root: {
-    display: 'flex'
+    display: 'flex',
+    '& .MuiOutlinedInput-input': {
+      padding: 5,
+      fontSize: 12
+    },
+    '& .MuiFormControl-root': {
+      verticalAlign: 0,
+      marginBottom: 20,
+      marginLeft: theme.spacing(2),
+    },
+    '& .MuiFormLabel-root': {
+      fontSize: 15
+    }
   },
   appBar: {
     backgroundColor: '#ffdb58',
@@ -86,12 +107,15 @@ const useStyles = makeStyles(theme => ({
   hide: {
     display: 'none',
   },
+  iconButton: {
+    padding: 7,
+  },
   menuButton: {
     marginRight: 36,
   },
   media: {
-    height: 200,
-    width: 200
+    width: 200,
+    padding: 5
   },
   paper: {
     padding: theme.spacing(2),
@@ -114,29 +138,48 @@ const useStyles = makeStyles(theme => ({
     ...theme.mixins.toolbar,
     maxWidth: 280,
   },
-  textField: {
-    marginLeft: theme.spacing(1),
+  formControl: {
     marginRight: theme.spacing(1),
-    width: 80,
+    minWidth: 120,
   },
 }));
 
 const Home = props => {
   const classes = useStyles();
 
-  const [open, setOpen] = useState(false);
-
-  const handleDrawerOpen = () => {
-    setOpen(true);
+  const initialFormState = {
+    search: "",
+    sort: "asc",
+    order: "",
   };
+  const [input, setInput] = useState(initialFormState);
+
+  const handleChange = name => event => {
+    setInput({
+      ...input,
+      [name]: event.target.value,
+    })
+  };
+
+  const [open, setOpen] = useState(false);
 
   const handleDrawerClose = () => {
     setOpen(false);
   };
+  
+  const submitSearch = async (e) => {
+    e.preventDefault();
+    try {
+      await dispatch(getProduct(input))
+      console.log("input", input)
+    } catch (error) {
+      console.log(error);
+    }
+  }  
 
   const fetchProduct = async () => {
     try {
-      const data = await dispatch(getProduct());
+      await dispatch(getProduct(input));
     } catch (error) {
       console.log(error);
     }
@@ -162,6 +205,15 @@ const Home = props => {
   const result = useSelector(data => data.product.productList);
   const resultCategory = useSelector(data => data.category.categoryList);
 
+  let sortedProduct = result.sort((a, b) => {
+    const isReversed = (input.sort === 'asc') ? 1 : -1;
+    return isReversed * a.name.localeCompare(b.name);
+  });
+
+  let filteredProduct = sortedProduct.filter((item) => {
+    return item.name.toLowerCase().indexOf(input.search.toLowerCase()) !== -1;
+  });
+
   return (
     <div className={classes.root}>
       <Header open={open} onClose={handleDrawerClose} title="Product Item" />
@@ -170,8 +222,31 @@ const Home = props => {
         <Grid container spacing={3} >
           <Grid item xs={3} sm={11} margin={1} >
             <Paper className={classes.paper} xs={3} sm={11} >
+              <FormLabel>Sort By</FormLabel>
+              <FormControl className={classes.formControl}>
+                <Select
+                  variant="outlined"
+                  value={input.sort}
+                  onChange={handleChange("sort")}
+                >
+                  <option value=""></option> 
+                  <option value="asc">Name (A-Z)</option>
+                  <option valZue="desc">Name (Z-A)</option>
+                </Select>
+              </FormControl>
+              <TextField
+                id="outlined-size-small"
+                size="small"
+                placeholder="Search product name"
+                variant="outlined"
+                onChange={handleChange("search")}
+                value={input.search}
+              />
+              <IconButton type="submit" className={classes.iconButton} onClick={submitSearch} aria-label="search">
+                <SearchIcon />
+              </IconButton>
               <Grid container className={classes.root} spacing={1}>
-                {result !== undefined ? result.map(item => {
+                {filteredProduct !== undefined ? filteredProduct.map(item => {
                   return (
                     <Grid key={item.id_product} item xs={3} sm={3}>
                       <Card className={classes.card}>
@@ -181,10 +256,13 @@ const Home = props => {
                           </CardMedia>
                           <CardContent>
                             <Typography gutterBottom variant="caption" component="h6">
-                              {item.name}
+                              <b>{item.name}</b>
                             </Typography>
                             <Typography variant="caption" color="textSecondary" component="p">
                               Price : Rp.{item.price}
+                            </Typography>
+                            <Typography variant="caption" color="textSecondary" component="p">
+                              Quantity : <b>{item.quantity}</b>
                             </Typography>
                             <Button variant="contained" color="primary"> <Typography variant="caption" component="p">Add to Cart</Typography>
                             </Button>
@@ -209,7 +287,7 @@ const Home = props => {
           anchor="right">
           <div className={classes.toolbar} />
           <main className={classes.content}>
-          <Typography align="center" variant="h5" style={{ fontFamily: "Airbnb Cereal App Bold", alignContent: "center" }} noWrap>
+            <Typography align="center" variant="h5" style={{ fontFamily: "Airbnb Cereal App Bold", alignContent: "center" }} noWrap>
               Cart
           </Typography>
             <Grid container className={classes.root} spacing={1}>
@@ -238,7 +316,7 @@ const Home = props => {
                     Checkout
                   </Button>
                 </CardActionArea>
-                <br/>
+                <br />
                 <CardActionArea>
                   <Button variant="contained"
                     alignContent="center"
