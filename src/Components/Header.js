@@ -209,7 +209,7 @@ const Header = props => {
           <ListItemIcon > <TimelineIcon /> </ListItemIcon>
           <ListItemText primary="History" />
         </ListItem>
-        <ListItem button onClick={() => { props.history.push('/AddProduct') }}>
+        <ListItem button onClick={() => { props.history.push('/ProductTable') }}>
           <ListItemIcon> <AddBoxIcon /> </ListItemIcon>
           <ListItemText primary="Add Product" />
         </ListItem>

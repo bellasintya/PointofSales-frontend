@@ -147,12 +147,16 @@ function CategoryTable(props) {
   const formState = {
     id_category: "",
     name: "",
+  }
+
+  const tableFilter = {
     search: "",
     sort: "",
   }
 
   //for input and open handle
   const [input, setInput] = useState(formState);
+  const [state, setState] = useState(tableFilter);
   const [editModal, setEditModal] = useState(false);
   const [deleteModal, setDeleteModal] = useState(false);
   const [addModal, setAddModal] = useState(false);
@@ -165,11 +169,19 @@ function CategoryTable(props) {
     })
   }
 
+  const handleChangeTable = nameChange => e => {
+    setInput({
+      ...state,
+      [nameChange]: e.target.value
+    })
+  }
+
   //button for open dialogs and passing data
   const addCategoryModal = () => {
     setAddModal(true);
   }
   const updateCategoryModal = (row) => {
+    console.log("update row", row);
     setInput(row)
     setEditModal(true);
   }
@@ -177,8 +189,6 @@ function CategoryTable(props) {
     setInput(row)
     setDeleteModal(true);
   }
-
-  // let numb = 0;
 
   //handle dialog 
   const handleEditClose = () => {
@@ -227,7 +237,6 @@ function CategoryTable(props) {
   //result 
   const fetchCategory = async (input) => {
     try {
-      console.log("input", input)
       await dispatch(getCategory(input))
     } catch (error) {
       console.log(error);
@@ -243,13 +252,13 @@ function CategoryTable(props) {
 
   //for sorting
   let sortedResult = result.sort((a, b) => {
-    const isReversed = (input.sort === 'asc') ? 1 : -1;
+    const isReversed = (tableFilter.sort === 'asc') ? 1 : -1;
     return isReversed * a.name.localeCompare(b.name);
   });
 
   //for searching
-  let filteredResult = sortedResult.filter((item) => {
-    return item.name.toLowerCase().indexOf(input.search.toLowerCase()) !== -1;
+  let filteredResult = sortedResult.filter((item, index) => {
+    return item.name.toLowerCase().indexOf(tableFilter.search.toLowerCase()) !== -1;
   });
 
   //for pagination
@@ -287,8 +296,8 @@ function CategoryTable(props) {
             <FormControl className={classes.formControl}>
               <Select
                 variant="outlined"
-                value={input.sort}
-                onChange={handleChange("sort")}
+                value={tableFilter.sort}
+                onChange={handleChangeTable("sort")}
                 label="Sort by"
               >
                 <option value=""></option>
@@ -306,8 +315,8 @@ function CategoryTable(props) {
               size="small"
               placeholder="Search category name"
               variant="outlined"
-              onChange={handleChange("search")}
-              value={input.search}
+              onChange={handleChangeTable("search")}
+              value={tableFilter.search}
             />
           </div>
           <Table className={classes.table} aria-label="simple table" align="center">
@@ -357,6 +366,7 @@ function CategoryTable(props) {
               </TableRow>
             </TableFooter>
           </Table>
+          
           {/* dialog for edit category */}
           <Dialog open={editModal} onClose={handleEditClose} aria-labelledby="form-dialog-title">
             <DialogTitle id="form-dialog-title" align="center">Edit Category</DialogTitle>

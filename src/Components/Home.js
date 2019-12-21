@@ -303,9 +303,9 @@ const Home = props => {
                     {/* Price : Rp.{item.price} */}
                   </Typography>
                   <ButtonGroup size="small" aria-label="small outlined button group">
-                    <Button>One</Button>
-                    <Button disabled>Three</Button>
-                    <Button>Three</Button>
+                    <Button>+</Button>
+                    <Button disabled>{1}</Button>
+                    <Button>-</Button>
                   </ButtonGroup>
                 </CardContent>
                 <CardActionArea>
