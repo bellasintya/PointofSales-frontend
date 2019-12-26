@@ -152,8 +152,6 @@ function ProductTable(props) {
     description: "",
     image: "",
     id_category: "",
-    search: "",
-    sort: "asc",
   };
 
   const tableFilter = {

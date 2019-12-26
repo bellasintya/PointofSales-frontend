@@ -14,8 +14,12 @@ import Card from '@material-ui/core/Card';
 import CardActionArea from '@material-ui/core/CardActionArea';
 import CardContent from '@material-ui/core/CardContent';
 import CardMedia from '@material-ui/core/CardMedia';
-import { getProduct } from '../Public/Redux/Action/product';
 import { getCategory } from '../Public/Redux/Action/category';
+import { getProductList, 
+          addToCart, 
+          removeFromCart, 
+          changeQuantity
+        } from '../Public/Redux/Action/transaction';
 import Button from '@material-ui/core/Button';
 
 //for search field
@@ -30,7 +34,8 @@ import FormLabel from '@material-ui/core/FormLabel';
 //for cart
 import ButtonGroup from "@material-ui/core/ButtonGroup";
 import TextField from '@material-ui/core/TextField';
-import { keys } from '@material-ui/core/styles/createBreakpoints';
+import AddIcon from '@material-ui/icons/Add';
+import RemoveIcon from '@material-ui/icons/Remove';
 
 const drawerWidth = 200;
 
@@ -48,6 +53,28 @@ const useStyles = makeStyles(theme => ({
     },
     '& .MuiFormLabel-root': {
       fontSize: 15
+    },
+    '& .MuiGrid-spacing-xs-1 > .MuiGrid-item': {
+      padding: 10,
+    },
+    '& .MuiCard-root': {
+      overflow: 'hidden',
+      width: 250,
+    },
+    '& .MuiTypography-caption': {
+      textAlign: 'center',
+    },
+    '& .MuiButtonGroup-root': {
+      marginInlineStart: '17%',
+      marginInlineEnd: '17%',
+    },
+    '& .MuiButton-fullWidth': {
+      margin: '3%',
+      width: '90%'
+    },
+    '& .MuiCardContent-root:last-child': {
+      paddingBottom: 10,
+      paddingTop: 10,
     }
   },
   appBar: {
@@ -77,6 +104,11 @@ const useStyles = makeStyles(theme => ({
   },
   card: {
     maxWidth: 200,
+  },
+  cart: {
+    flexGrow: 1,
+    padding: theme.spacing(2),
+    width: 250,
   },
   dense: {
     marginTop: theme.spacing(2),
@@ -110,6 +142,15 @@ const useStyles = makeStyles(theme => ({
   iconButton: {
     padding: 7,
   },
+  imageCart: {
+    alignContent: "center",
+    width: 150,
+    height: 150,
+    marginBottom: '10%'
+  },
+  emptyCartImage: {
+    padding: '5% 15% 5% 15%',
+  },
   menuButton: {
     marginRight: 36,
   },
@@ -121,6 +162,11 @@ const useStyles = makeStyles(theme => ({
     padding: theme.spacing(2),
     textAlign: "center",
     color: theme.palette.text.secondary
+  },
+  paperCart: {
+    padding: theme.spacing(2),
+    textAlign: "center",
+    color: theme.palette.text.secondary,
   },
   toolbar: {
     display: 'flex-justify',
@@ -145,15 +191,21 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const Home = props => {
+
   const classes = useStyles();
+  const dispatch = useDispatch();
 
   const initialFormState = {
     search: "",
     sort: "asc",
     order: "",
   };
-  const [input, setInput] = useState(initialFormState);
 
+  const [open, setOpen] = useState(false);
+  const [input, setInput] = useState(initialFormState);
+  const [product, setProduct] = useState();
+
+  //handleChange 
   const handleChange = name => event => {
     setInput({
       ...input,
@@ -161,25 +213,23 @@ const Home = props => {
     })
   };
 
-  const [open, setOpen] = useState(false);
-
   const handleDrawerClose = () => {
     setOpen(false);
   };
-  
+
   const submitSearch = async (e) => {
     e.preventDefault();
     try {
-      await dispatch(getProduct(input))
+      await dispatch(getProductList(input))
       console.log("input", input)
     } catch (error) {
       console.log(error);
     }
-  }  
+  }
 
   const fetchProduct = async () => {
     try {
-      await dispatch(getProduct(input));
+      await dispatch(getProductList());
     } catch (error) {
       console.log(error);
     }
@@ -192,6 +242,51 @@ const Home = props => {
       console.log(error);
     }
   }
+  
+  const { productList, detailTransaction, total_price } = useSelector(data => data.transaction);
+  const resultCategory = useSelector(data => data.category.categoryList);
+
+  const handleAddToCart = async (product) => {
+    try {
+      if (!product.is_selected) {
+        await dispatch(addToCart(product));
+      } else {
+        await dispatch(removeFromCart(product));
+      }
+    } catch (error) {
+      console.log("error", error)
+    }
+  }
+
+  const handleChangeQuantity = async (product, changeType) => {
+    let new_qty = 0;
+    if (changeType === "reduce"){
+      new_qty = product.qty - 1;
+      if (new_qty < 1){
+        try {
+          await dispatch(removeFromCart(product));
+        } catch (error) {
+         console.log ("error removing from cart", error)
+        }
+      }
+    } else {
+      new_qty = product.qty + 1;
+    }
+
+    try {
+      await dispatch(changeQuantity({id_product: product.id_product, qty: new_qty}));
+    } catch (error) {
+     console.log ("error", error)
+    }
+  }
+
+  const handleCheckout = (item) => {
+
+  }
+
+  const handleRemoveCart = (item) => {
+
+  }
 
   useEffect(() => {
     fetchProduct()
@@ -201,11 +296,8 @@ const Home = props => {
     fetchCategory()
   }, [])
 
-  const dispatch = useDispatch();
-  const result = useSelector(data => data.product.productList);
-  const resultCategory = useSelector(data => data.category.categoryList);
 
-  let sortedProduct = result.sort((a, b) => {
+  let sortedProduct = productList.sort((a, b) => {
     const isReversed = (input.sort === 'asc') ? 1 : -1;
     return isReversed * a.name.localeCompare(b.name);
   });
@@ -229,9 +321,9 @@ const Home = props => {
                   value={input.sort}
                   onChange={handleChange("sort")}
                 >
-                  <option value=""></option> 
+                  <option value=""></option>
                   <option value="asc">Name (A-Z)</option>
-                  <option valZue="desc">Name (Z-A)</option>
+                  <option value="desc">Name (Z-A)</option>
                 </Select>
               </FormControl>
               <TextField
@@ -261,11 +353,38 @@ const Home = props => {
                             <Typography variant="caption" color="textSecondary" component="p">
                               Price : Rp.{item.price}
                             </Typography>
-                            <Typography variant="caption" color="textSecondary" component="p">
-                              Quantity : <b>{item.quantity}</b>
-                            </Typography>
-                            <Button variant="contained" color="primary"> <Typography variant="caption" component="p">Add to Cart</Typography>
-                            </Button>
+                            {
+                              item.is_selected !== true ? [
+                                <span>
+                                  <Typography variant="caption" color="textSecondary" component="p">
+                                    Quantity : <b>{item.quantity}</b>
+                                  </Typography>
+                                  <Button variant="contained"
+                                    color="primary"
+                                    onClick={() => handleAddToCart(item)}
+                                  >
+                                  <Typography variant="caption" component="p" >
+                                      Add to Cart
+                                  </Typography>
+                                  </Button>
+                                </span>
+                              ] :
+                              [
+                                <span>
+                                  <Typography variant="caption" color="textSecondary" component="p">
+                                    Quantity : <b>{item.quantity}</b>
+                                  </Typography>
+                                  <Button variant="contained"
+                                    color="primary"
+                                    disabled
+                                  >
+                                    <Typography variant="caption" component="p" >
+                                      Added
+                                    </Typography>
+                                  </Button>
+                                </span>
+                              ]
+                            }
                           </CardContent>
                         </CardActionArea>
                       </Card>
@@ -283,50 +402,80 @@ const Home = props => {
         <Drawer
           className={classes.drawer}
           variant="permanent"
-          classes={{ paper: classes.drawerPaper }}
+          classes={classes.paperCart}
           anchor="right">
           <div className={classes.toolbar} />
-          <main className={classes.content}>
-            <Typography align="center" variant="h5" style={{ fontFamily: "Airbnb Cereal App Bold", alignContent: "center" }} noWrap>
+          <main className={classes.cart}>
+            <Typography align="center" variant="h5" style={{ fontFamily: "Airbnb Cereal App Bold", alignContent: "center", paddingBottom: 10 }} noWrap>
               Cart
           </Typography>
             <Grid container className={classes.root} spacing={1}>
-              <Card>
-                <CardMedia align="center">
-                  <img src="https://www.static-src.com/wcsstore/Indraprastha/images/catalog/medium//89/MTA-2418164/whiskas_cat-food-makanan-kucing-whiskas-tuna-7kg-7-kg_full02.jpg" width="150px" height="150px" />
-                </CardMedia>
-                <CardContent>
-                  <Typography gutterBottom variant="caption" component="h6">
-                    {/* {item.name} */}
+              {detailTransaction.length > 0 ? detailTransaction.map((item, index) => {
+                return (
+                  <Card key={index}>
+                    <CardMedia align="center">
+                      <img src={item.image} width="100px" height="100px" />
+                    </CardMedia>
+                    <CardContent>
+                      <Typography gutterBottom variant="caption" component="h6">
+                        {item.name}
+                      </Typography>
+                      <Typography variant="caption" color="textSecondary" component="p">
+                        Rp.{item.sub_total}
+                      </Typography>
+                      <ButtonGroup size="small" aria-label="small outlined button group">
+                      {item.qty >= item.last_quantity ? [
+                        <Button disabled><AddIcon /></Button>
+                      ] :
+                      [
+                        <Button onClick={() => handleChangeQuantity(item, "add")}><AddIcon /></Button>
+                      ]
+                      }
+                      <Button disabled>{item.qty}</Button>
+                      <Button onClick={() => handleChangeQuantity(item, "reduce")}><RemoveIcon /></Button>
+                      </ButtonGroup>
+                    </CardContent>
+                  </Card>
+                )
+              })
+                : <div className={classes.emptyCartImage}>
+                  <img src="https://image.flaticon.com/icons/png/512/2038/2038854.png"
+                    className={classes.imageCart} />
+                  <Typography align="center" variant="subtitle1" style={{ fontFamily: "Airbnb Cereal App Bold" }}>
+                    Your Cart is Empty
                   </Typography>
                   <Typography variant="caption" color="textSecondary" component="p">
-                    {/* Price : Rp.{item.price} */}
+                    Looks like you haven't added
                   </Typography>
-                  <ButtonGroup size="small" aria-label="small outlined button group">
-                    <Button>+</Button>
-                    <Button disabled>{1}</Button>
-                    <Button>-</Button>
-                  </ButtonGroup>
-                </CardContent>
-                <CardActionArea>
-                  <Button variant="contained"
-                    alignContent="center"
-                    color="primary"
-                    fullWidth>
-                    Checkout
-                  </Button>
-                </CardActionArea>
-                <br />
-                <CardActionArea>
-                  <Button variant="contained"
-                    alignContent="center"
-                    color="secondary"
-                    fullWidth>
-                    Remove
-                  </Button>
-                </CardActionArea>
-              </Card>
+                  <Typography variant="caption" color="textSecondary" component="p">
+                    anything to your cart yet
+                  </Typography>
+                </div>
+              }
             </Grid>
+            <br/>
+            {detailTransaction.length > 0 && 
+              <div>
+                <Typography align="center" variant="subtitle1" style={{ fontFamily: "Airbnb Cereal App Bold" }}>
+                  Total: Rp.  {total_price}
+                </Typography>
+                <Button variant="contained"
+                  color="primary"
+                  fullWidth
+                  onClick={() => handleCheckout(detailTransaction)}
+                >
+                  Checkout
+                </Button>
+                <br />
+                <Button variant="contained"
+                  color="secondary"
+                  fullWidth
+                  onClick={() => handleRemoveCart(detailTransaction)}
+                >
+                  Remove
+              </Button>
+              </div>
+            }
           </main>
         </Drawer>
       </div>
