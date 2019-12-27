@@ -18,9 +18,12 @@ import { getCategory } from '../Public/Redux/Action/category';
 import { getProductList, 
           addToCart, 
           removeFromCart, 
-          changeQuantity
+          changeQuantity,
+          checkOutCart
         } from '../Public/Redux/Action/transaction';
-import Button from '@material-ui/core/Button';
+
+import { getIdUser } from "../../src/Helpers/Jwt";
+import Button from '@material-ui/core/Button'; 
 
 //for search field
 import IconButton from '@material-ui/core/IconButton';
@@ -203,7 +206,6 @@ const Home = props => {
 
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState(initialFormState);
-  const [product, setProduct] = useState();
 
   //handleChange 
   const handleChange = name => event => {
@@ -280,11 +282,19 @@ const Home = props => {
     }
   }
 
-  const handleCheckout = (item) => {
+  const handleCheckout = async () => {
+    const id_user = getIdUser();
+    const handleCheckOut = await dispatch(checkOutCart({
+      id_user: id_user,
+      total_price: total_price,
+      detail_transaction: detailTransaction,
+    }));
+
+    console.log ("handleCheckOut", handleCheckOut);
 
   }
-
-  const handleRemoveCart = (item) => {
+ 
+  const handleRemoveAllCart = (item) => {
 
   }
 
@@ -462,7 +472,7 @@ const Home = props => {
                 <Button variant="contained"
                   color="primary"
                   fullWidth
-                  onClick={() => handleCheckout(detailTransaction)}
+                  onClick={handleCheckout}
                 >
                   Checkout
                 </Button>
@@ -470,9 +480,9 @@ const Home = props => {
                 <Button variant="contained"
                   color="secondary"
                   fullWidth
-                  onClick={() => handleRemoveCart(detailTransaction)}
+                  onClick={() => handleRemoveAllCart(detailTransaction)}
                 >
-                  Remove
+                  Remove All
               </Button>
               </div>
             }

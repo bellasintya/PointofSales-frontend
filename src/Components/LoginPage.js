@@ -60,7 +60,11 @@ function LoginPage(props) {
       const result = await dispatch(loginUser(input));
       if (result.action.payload.data.status === 200) {
         localStorage.setItem("x-access-token", result.action.payload.data.result.token)
+        localStorage.setItem("id_user", result.action.payload.data.result.id_user)
+        localStorage.setItem("username", result.action.payload.data.result.username)
         props.history.push('/Home')
+      } else {
+        props.history.push('/LoginPage')
       }
     } catch (error) {
       console.log(error);

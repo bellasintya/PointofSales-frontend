@@ -1,13 +1,11 @@
 import axios from 'axios';
+import { getJwt } from '../../../Helpers/Jwt'; 
 
 export const getProductList = () => {
-    const token = localStorage.getItem('x-access-token');
-    const headers = {
-        "x-access-token": token
-    };
+    const jwt = getJwt();
     return {
         type: 'GET_PRODUCT_CART',
-        payload: axios.get(`http://localhost:8080/product/`, { headers: headers })
+        payload: axios.get(`http://localhost:8080/product/`, { headers: {'x-access-token': jwt} })
     }
 }
 export const addToCart = (product) => {
@@ -29,13 +27,17 @@ export const changeQuantity = (product) => {
     }
 }
 export const checkOutCart = (data) => {
-    const token = localStorage.getItem('x-access-token');
-    const headers = {
-        "x-access-token": token
-    };
+    const jwt = getJwt();
     return {
         type: 'CHECKOUT_CART',
-        payload: axios.post(`http://localhost:8080/transaction/`, data, { headers: headers })
+        payload: axios.post(`http://localhost:8080/transaction/`, data, { headers: {'x-access-token': jwt} })
+    }
+}
+export const getRecentTransaction = () => {
+    const jwt = getJwt();
+    return {
+        type: "GET_RECENT_TRANSACTION",
+        payload: axios.get(`http://localhost:8080/transactions/`, { headers: {'x-access-token': jwt} })
     }
 }
 

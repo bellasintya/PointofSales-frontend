@@ -1,30 +1,33 @@
 import React, { Component } from 'react';
-import { getJwt } from '../Helpers/Jwt';
+import { getJwt } from './Jwt';
 import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 
-class AuthenticatedComponent extends Component {
+class Authentication extends Component {
     constructor (props) {
         super (props);
 
         this.state = {
             user: undefined
         } 
-    }
-    
+    }   
     componentDidMount () {
-        const jwt = getJwt ();
+        const jwt = getJwt();
+        console.log ("jwt", jwt)
         if (!jwt){
+            this.props.history.push('/LoginPage');
+        }
+        else if(jwt === undefined || jwt === null || jwt === ''){
+            localStorage.removeItem ('x-access-token');
             this.props.history.push('/LoginPage');
         }
         else{
             this.props.history.push('/Home');
-            this.setState ({user: this.props.user})
+            this.setState ({user: this.props.user});
         }
     }
 
     render () {
-        console.log ("user in authenticated", this.state.user);
         if (this.state.user === undefined) {
             return (
                 <div><h1>Loading...</h1></div>
@@ -32,7 +35,6 @@ class AuthenticatedComponent extends Component {
         }
         return (
             <div>
-                {console.log ("children",this.props.children)}
                 {this.props.children}
             </div>
         )
@@ -45,4 +47,4 @@ const mapStateToProps = state => {
     }
 }
 
-export default withRouter (connect (mapStateToProps) (AuthenticatedComponent));
+export default withRouter (connect (mapStateToProps) (Authentication));
