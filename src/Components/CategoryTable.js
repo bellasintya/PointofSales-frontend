@@ -39,7 +39,8 @@ import LastPageIcon from '@material-ui/icons/LastPage';
 //for sort by
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
-import FormLabel from '@material-ui/core/FormLabel';
+import SearchIcon from '@material-ui/icons/Search';
+import InputAdornment from '@material-ui/core/InputAdornment';
 
 //styling
 const useStyles = makeStyles({
@@ -57,10 +58,14 @@ const useStyles = makeStyles({
       fontSize: 'small',
       minWidth: 100,
     },
-
+    '& .MuiOutlinedInput-root': {
+      position: 'relative',
+      width: 195,
+      height: 35,
+    },
     '& .MuiFormControl-root' : {
-      marginInlineEnd: '7%',
-      marginInlineStart: '7%',
+      marginInlineEnd: '6%',
+      marginInlineStart: '6%',
     },
     '& .MuiFormLabel-root': {
       fontSize: 'small',
@@ -151,7 +156,7 @@ function CategoryTable(props) {
 
   const tableFilter = {
     search: "",
-    sort: "",
+    sort: "asc",
   }
 
   //for input and open handle
@@ -181,7 +186,6 @@ function CategoryTable(props) {
     setAddModal(true);
   }
   const updateCategoryModal = (row) => {
-    console.log("update row", row);
     setInput(row)
     setEditModal(true);
   }
@@ -311,6 +315,13 @@ function CategoryTable(props) {
               Add Category
             </Button>
             <TextField
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon />
+                  </InputAdornment>
+                ),
+              }}
               id="outlined-size-small"
               size="small"
               placeholder="Search category name"

@@ -7,3 +7,8 @@ export const getIdUser = () => {
 export const getUsername = () => {
     return localStorage.getItem ('username');
 }; 
+export const logoutUser = () => {
+    return localStorage.removeItem("x-access-token"),
+            localStorage.removeItem("id_user"),
+            localStorage.removeItem("username");
+}

@@ -14,6 +14,7 @@ import { connect, useDispatch, useSelector } from 'react-redux';
 import { Button } from '@material-ui/core';
 import EditIcon from '@material-ui/icons/Edit';
 import DeleteOutlineIcon from '@material-ui/icons/DeleteOutline';
+import SearchIcon from '@material-ui/icons/Search';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 
@@ -31,7 +32,6 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import InputLabel from '@material-ui/core/InputLabel';
 
-
 //for pagination
 import TablePagination from '@material-ui/core/TablePagination';
 import IconButton from '@material-ui/core/IconButton';
@@ -42,23 +42,28 @@ import LastPageIcon from '@material-ui/icons/LastPage';
 
 //for sort by
 import FormControl from '@material-ui/core/FormControl';
-import FormLabel from '@material-ui/core/FormLabel';
+import InputAdornment from '@material-ui/core/InputAdornment';
 
 const useStyles = makeStyles({
   root: {
     width: '90%',
     overflowX: 'auto',
     // [top] [right] [bottom] [left]	
-    margin: '4% 1% 1% 6%',
+    margin: '3% 1% 1% 6%',
     padding: '2%',
     alignContent: 'center',
 
     '& .MuiOutlinedInput-input': {
       padding: 8,
       fontSize: 'small',
-      minWidth: 100,
+      width: 200,
+      height: 25,
     },
-
+    '& .MuiOutlinedInput-root': {
+      position: 'relative',
+      width: 200,
+      height: 35,
+    },
     '& .MuiFormControl-root': {
       marginInlineEnd: '7%',
       marginInlineStart: '7%',
@@ -69,8 +74,9 @@ const useStyles = makeStyles({
 
   },
   table: {
-    maxWidth: 800,
-    alignContent: 'center'
+    alignContent: 'center',
+    maxWidth: '95%',
+    marginTop: '2%',
   },
   column: {
     justifyContent: 'normal'
@@ -156,7 +162,7 @@ function ProductTable(props) {
 
   const tableFilter = {
     search: "",
-    sort: "",
+    sort: "asc",
   }
 
   const [input, setInput] = useState(formState);
@@ -318,7 +324,6 @@ function ProductTable(props) {
                 onChange={handleChangeTable("sort")}
                 label="Sort by"
               >
-                <option value=""></option>
                 <option value="asc">Name (A-Z)</option>
                 <option value="desc">Name (Z-A)</option>
               </Select>
@@ -336,6 +341,13 @@ function ProductTable(props) {
               variant="outlined"
               onChange={handleChangeTable("search")}
               value={tableFilter.search}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon />
+                  </InputAdornment>
+                ),
+              }}
             />
           </div>
           <Table className={classes.table} aria-label="simple table" align="center">

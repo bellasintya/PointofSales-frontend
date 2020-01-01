@@ -1,4 +1,7 @@
 import axios from 'axios';
+import { logoutUser } from '../../../Helpers/Jwt';
+
+console.log('logout user di action ', logoutUser);
 
 export const loginUser = (form) => {
     return {
@@ -13,8 +16,9 @@ export const registerUser = (form) => {
     } 
 }
 export const logout = () => {
+    const removeStorage = logoutUser();
     return {
         type: "USER_LOGOUT", 
-        payload: localStorage.removeItem("x-access-token")
+        payload: removeStorage,
     }
 }

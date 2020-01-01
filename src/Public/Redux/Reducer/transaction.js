@@ -5,7 +5,7 @@ const initialState = {
     total_price: 0,
     productList: [],
     detailTransaction: [],
-    status_input:[],
+    status_input: [],
     recentTransaction: {},
 }
 
@@ -136,11 +136,11 @@ const transaction = (state = initialState, action) => {
             };
         case 'CHECKOUT_CART_FULFILLED':
             let updatedProductList = action.payload.data.result;
-            let modifiedUpdate = updatedProductList.map (item => ({
-                ...item, 
+            let modifiedUpdate = updatedProductList.map(item => ({
+                ...item,
                 is_selected: false
             }));
-            return { 
+            return {
                 ...state,
                 isLoading: false,
                 isFulfilled: true,
@@ -149,11 +149,28 @@ const transaction = (state = initialState, action) => {
                 total_price: 0,
                 status_input: action.payload.data.status
             }
+        case 'REMOVE_ALL_FROM_CART':
+            const afterRemoveAll = state.productList.map(item => {
+                if (parseInt(item.id_product) === parseInt(action.product.id_product))
+                    return {
+                        ...item,
+                        is_selected: false
+                    };
+                return item;
+            });
+            return {
+                ...state,
+                isLoading: false,
+                isFulfilled: true,
+                detailTransaction: [],
+                productList: afterRemoveAll,
+                total_price: 0,
+            }
         case 'GET_RECENT_TRANSACTION':
             return {
                 ...state,
                 isLoading: false,
-                recentTransaction: action.payload.data
+                recentTransaction: action.payload.data.result
             }
         default:
             return state;

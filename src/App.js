@@ -6,8 +6,9 @@ import History from './Components/History';
 import AddProduct from './Components/AddProduct';
 import ProductTable from './Components/ProductTable';
 import CategoryTable from './Components/CategoryTable';
-import LoginPage from './Components/LoginPage';
-import RegisterPage from './Components/RegisterPage';
+import SignInPage from './Components/SignInPage';
+import SignUpPage from './Components/SignUpPage';
+import Notifications from './Components/Notifications';
 //for JWT
 import Authentication from './Helpers/Authentication';
 
@@ -17,8 +18,9 @@ class App extends Component {
       <BrowserRouter>
         {/* hit one route and then stop */}
         <Switch>
-          <Route exact path="/" component={RegisterPage} />
-          <Route path="/LoginPage" component={LoginPage} />
+          <Route exact path="/" component={SignUpPage} />
+          <Route path="/SignInPage" component={SignInPage} />
+          <Route path="/Notifications" component={Notifications} />
           <Authentication>
             <Route path="/Home" component={Home} />
             <Route path="/History" component={History} />

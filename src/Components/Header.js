@@ -6,23 +6,29 @@ import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import { ListItemText } from '@material-ui/core';
 import AddBoxOutlinedIcon from '@material-ui/icons/AddBoxOutlined';
-import AddBoxIcon from '@material-ui/icons/AddBox';
-import LocalMallIcon from '@material-ui/icons/LocalMall';
+import LocalMallOutlinedIcon from '@material-ui/icons/LocalMallOutlined';
 import TimelineIcon from '@material-ui/icons/Timeline';
 import ListItem from '@material-ui/core/ListItem';
 import MenuIcon from '@material-ui/icons/Menu';
+import LocalOfferOutlinedIcon from '@material-ui/icons/LocalOfferOutlined';
 import clsx from 'clsx';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
-import SettingsIcon from '@material-ui/icons/Settings';
+import AccountCircleOutlinedIcon from '@material-ui/icons/AccountCircleOutlined';
 import IconButton from '@material-ui/core/IconButton';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles, useTheme } from '@material-ui/core/styles';
 import { withRouter } from 'react-router-dom';
 import { logout } from '../Public/Redux/Action/user';
 import { useDispatch } from "react-redux"
+
+//for dialog
+import { Button } from '@material-ui/core';
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogTitle from '@material-ui/core/DialogTitle';
 
 const drawerWidth = 200;
 
@@ -114,11 +120,9 @@ const Header = props => {
   const theme = useTheme();
 
   const onOpen = props.open;
-  // const onClose = props.onClose;
   const title = props.title;
 
   const [open, setOpen] = React.useState(false);
-
   const [show, setShow] = React.useState(false);
   const [display, setDisplay] = React.useState(false);
 
@@ -130,32 +134,24 @@ const Header = props => {
     setOpen(false);
   };
 
+  const handleLogout = () => {
+    setShow(true);
+  };
+
+  const handleLogoutCancel = () => {
+    setShow(false);
+  };
+
   const dispatch = useDispatch()
 
   const userLogout = async () => {
     await dispatch(logout());
-    props.history.push('/LoginPage');
+    props.history.push('/SignInPage');
   }
 
   React.useEffect(() => {
     console.log(display)
-  }, [display])
-
-  // const handleProductClose = () => {
-  //   setShow(false);
-  // };
-
-  // const handleProductOpen = () => {
-  //   setShow(true);
-  // };
-
-  // const handleCategoryClose = () => {
-  //   setDisplay(false);
-  // };
-
-  // const handleCategoryOpen = () => {
-  //   setDisplay(true);
-  // };
+  }, [display]);
 
   return (
     <div className={classes.root}>
@@ -202,7 +198,7 @@ const Header = props => {
         </div>
         <Divider />
         <ListItem button onClick={() => { props.history.push('/Home') }}>
-          <ListItemIcon> <LocalMallIcon /></ListItemIcon>
+          <ListItemIcon> <LocalMallOutlinedIcon /></ListItemIcon>
           <ListItemText primary="Products Item" />
         </ListItem>
         <ListItem button onClick={() => { props.history.push('/History') }}>
@@ -210,22 +206,35 @@ const Header = props => {
           <ListItemText primary="History" />
         </ListItem>
         <ListItem button onClick={() => { props.history.push('/ProductTable') }}>
-          <ListItemIcon> <AddBoxIcon /> </ListItemIcon>
+          <ListItemIcon> <AddBoxOutlinedIcon /> </ListItemIcon>
           <ListItemText primary="Add Product" />
         </ListItem>
         <ListItem button onClick={() => { props.history.push('/CategoryTable') }}>
-          <ListItemIcon> <AddBoxOutlinedIcon /> </ListItemIcon>
+          <ListItemIcon> <LocalOfferOutlinedIcon /> </ListItemIcon>
           <ListItemText primary="Category" />
         </ListItem>
         <ListItem button>
-          <ListItemIcon> <SettingsIcon /> </ListItemIcon>
+          <ListItemIcon> <AccountCircleOutlinedIcon /> </ListItemIcon>
           <ListItemText primary="Admin Page" />
         </ListItem>
-        <ListItem button onClick={userLogout}>
+        <ListItem button onClick={handleLogout}>
           <ListItemIcon> <ExitToAppIcon /> </ListItemIcon>
           <ListItemText primary="Logout" />
         </ListItem>
       </Drawer>
+
+      {/* logout modal */}
+      <Dialog open={show} onClose={handleLogoutCancel} aria-labelledby="form-dialog-title">
+        <DialogTitle id="form-dialog-title" align="center">Are you sure want to log out?</DialogTitle>
+        <DialogActions align="center">
+          <Button onClick={handleLogoutCancel} color="unset" variant="contained">
+            Cancel
+          </Button>
+          <Button type="submit" onClick={userLogout} color="secondary" variant="contained">
+            Logout
+          </Button>{' '}
+        </DialogActions>
+      </Dialog>
     </div>
   );
 }

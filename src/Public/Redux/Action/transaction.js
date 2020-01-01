@@ -33,6 +33,12 @@ export const checkOutCart = (data) => {
         payload: axios.post(`http://localhost:8080/transaction/`, data, { headers: {'x-access-token': jwt} })
     }
 }
+export const removeAllFromCart = (product) => {
+    return {
+        type: 'REMOVE_ALL_FROM_CART',
+        product
+    }
+}
 export const getRecentTransaction = () => {
     const jwt = getJwt();
     return {
