@@ -193,7 +193,7 @@ function SignUpPage(props) {
                             className={classes.submit}
                             onClick={submitRegister}
                         >
-                            Sign In
+                            Sign Up
                         </Button>
                         <Grid container justify="center">
                             <Grid item>

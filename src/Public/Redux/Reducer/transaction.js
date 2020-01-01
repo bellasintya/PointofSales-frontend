@@ -150,21 +150,14 @@ const transaction = (state = initialState, action) => {
                 status_input: action.payload.data.status
             }
         case 'REMOVE_ALL_FROM_CART':
-            const afterRemoveAll = state.productList.map(item => {
-                if (parseInt(item.id_product) === parseInt(action.product.id_product))
-                    return {
-                        ...item,
-                        is_selected: false
-                    };
-                return item;
-            });
+            let afterRemoveAll = state.productList.map(item => ({
+                ...item,
+                is_selected: false
+            }));
             return {
                 ...state,
-                isLoading: false,
-                isFulfilled: true,
                 detailTransaction: [],
                 productList: afterRemoveAll,
-                total_price: 0,
             }
         case 'GET_RECENT_TRANSACTION':
             return {

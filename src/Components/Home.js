@@ -144,6 +144,7 @@ const Home = (props) => {
   }
 
   const handleRemoveAllFromCart = async (product) => {
+    console.log("product", product);
     await dispatch(removeAllFromCart(product));
   }
 
