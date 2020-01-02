@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { Alert } from 'react-bootstrap';
 import Avatar from '@material-ui/core/Avatar';
 import Button from '@material-ui/core/Button';
 import CssBaseline from '@material-ui/core/CssBaseline';
@@ -13,7 +12,8 @@ import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import { loginUser } from '../Public/Redux/Action/user';
 import { connect, useDispatch, useSelector } from 'react-redux';
-
+import Notifications from './Notifications';
+import { openNotification } from '../Public/Redux/Action/notification';
 
 function Copyright() {
   return (
@@ -83,13 +83,22 @@ function SignInPage(props) {
     e.preventDefault();
     try {
       const result = await dispatch(loginUser(input));
+      let notification = {};
       if (result.action.payload.data.status === 200) {
         localStorage.setItem("x-access-token", result.action.payload.data.result.token)
         localStorage.setItem("id_user", result.action.payload.data.result.id_user)
         localStorage.setItem("username", result.action.payload.data.result.username)
+        notification = {
+          variant: 'success',
+          message: result.value.data.message,
+        }
         props.history.push('/Home')
       } else {
-        props.history.push('/SignInPage')
+        notification = {
+          variant: 'error',
+          message: result.value.data.message,
+        }
+      await dispatch(openNotification(notification));            
       }
     } catch (error) {
       console.log(error);
@@ -111,6 +120,7 @@ function SignInPage(props) {
         <div className={classes.paper}>
           <br />
           <br />
+          <Notifications/>
           <Avatar className={classes.avatar}>
             <img className={classes.avatarImage} src={Logo} alt="logo"/>
           </Avatar>

@@ -5,6 +5,8 @@ const initialState = {
     isLoading: false,
     isRejected: false,
     isFulfilled: false,
+    responseStatus: '',
+    responseMessage:'',
 }
 
 const user = (state = initialState, action) => {
@@ -43,14 +45,11 @@ const user = (state = initialState, action) => {
                 isRejected: true,
             }
         case 'POST_USER_FULFILLED':
-            //const response = action.payload.data;
-            //Object.assign(state.userList,response);
             return {
                 ...state,
                 isLoading: false,
                 isFulfilled: true,
-                userList: action.payload.data
-                //userList: state.userList
+                userList: action.payload.data,
             }
         case 'POST_REGISTER_PENDING':
             return {
@@ -70,7 +69,7 @@ const user = (state = initialState, action) => {
                 ...state,
                 isLoading: false,
                 isFulfilled: true,
-                registerResponse: action.payload.data
+                registerResponse: action.payload.data,
             }
         case 'USER_LOGOUT':
             return {

@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import clsx from 'clsx';
-import Button from '@material-ui/core/Button';
 import CheckCircleIcon from '@material-ui/icons/CheckCircle';
 import ErrorIcon from '@material-ui/icons/Error';
 import InfoIcon from '@material-ui/icons/Info';
@@ -12,7 +11,8 @@ import Snackbar from '@material-ui/core/Snackbar';
 import SnackbarContent from '@material-ui/core/SnackbarContent';
 import WarningIcon from '@material-ui/icons/Warning';
 import { makeStyles } from '@material-ui/core/styles';
-import { useSelector } from 'react-redux';
+import { connect, useDispatch, useSelector } from 'react-redux';
+import { closeNotification } from '../Public/Redux/Action/notification';
 
 const variantIcon = {
   success: CheckCircleIcon,
@@ -44,6 +44,7 @@ const useStyles1 = makeStyles(theme => ({
   message: {
     display: 'flex',
     alignItems: 'center',
+    zIndex: 99,
   },
 }));
 
@@ -85,30 +86,20 @@ const useStyles2 = makeStyles(theme => ({
   },
 }));
 
-export default function Notifications(props) {
-  //receiving props
-  // const message = props.message;
-  // const status = props.status;
-  // const show = props.show;
+function Notifications(props) {
 
   const { isOpen, variant, message } = useSelector(data => data.notification);
-  console.log ('variant', variant);
-  console.log ('message', message);
-
   const classes = useStyles2();
   const [open, setOpen] = React.useState(false);
-
   
   React.useEffect (() => () => {
-    setOpen(true)
-  }, [message])
+    setOpen(isOpen)
+  }, [variant]);
 
+  const dispatch = useDispatch();
 
-  const handleClose = () => {
-    // if (reason === 'clickaway') {
-    //   return;
-    // }
-    setOpen(false);
+  const handleClose = async () => {             
+    await dispatch(closeNotification());
   };
 
   return (
@@ -131,3 +122,5 @@ export default function Notifications(props) {
     </div>
   );
 }
+
+export default connect()(Notifications);

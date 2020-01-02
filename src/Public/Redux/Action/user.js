@@ -1,7 +1,5 @@
 import axios from 'axios';
-import { logoutUser } from '../../../Helpers/Jwt';
-
-console.log('logout user di action ', logoutUser);
+import { logoutUser } from '../../../Helpers/Jwt'; 
 
 export const loginUser = (form) => {
     return {

@@ -14,6 +14,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Button } from '@material-ui/core';
 import EditIcon from '@material-ui/icons/Edit';
 import DeleteOutlineIcon from '@material-ui/icons/DeleteOutline';
+import Notifications from './Notifications';
+import { openNotification } from '../Public/Redux/Action/notification';
 
 //for header
 import Header from './Header';
@@ -211,8 +213,22 @@ function CategoryTable(props) {
   const submitAdd = async (e) => {
     e.preventDefault();
     try {
-      await dispatch(postCategory(input));
-      setAddModal(!addModal)
+      const result = await dispatch(postCategory(input));
+      let notification = {};
+      if (result.value.data.status === 400) {
+        notification = {
+          variant: 'error',
+          message: result.value.data.message,
+        }
+        setAddModal(addModal);
+      } else {
+        notification = {
+          variant: 'success',
+          message: result.value.data.message,
+        }
+        setAddModal(!addModal);
+      }
+      await dispatch(openNotification(notification));  
     } catch (error) {
       console.log(error)
     }
@@ -221,8 +237,22 @@ function CategoryTable(props) {
   const submitEdit = async (e) => {
     e.preventDefault();
     try {
-      await dispatch(patchCategory(input));
-      setEditModal(!editModal)
+      const result = await dispatch(patchCategory(input));
+      let notification = {};
+      if (result.value.data.status === 400) {
+        notification = {
+          variant: 'error',
+          message: result.value.data.message,
+        }
+        setEditModal(editModal)
+      } else {
+        notification = {
+          variant: 'success',
+          message: result.value.data.message,
+        }
+        setEditModal(!editModal)
+      }
+      await dispatch(openNotification(notification));  
     } catch (error) {
       console.log(error)
     }
@@ -231,8 +261,22 @@ function CategoryTable(props) {
   const submitDelete = async (e) => {
     e.preventDefault();
     try {
-      await dispatch(deleteCategory(input))
-      setDeleteModal(!deleteModal)
+      const result = await dispatch(deleteCategory(input));
+      let notification = {};
+      if (result.value.data.status === 400) {
+        notification = {
+          variant: 'error',
+          message: result.value.data.message,
+        }
+        setDeleteModal(deleteModal)
+      } else {
+        notification = {
+          variant: 'success',
+          message: result.value.data.message,
+        }
+        setDeleteModal(!deleteModal)
+      }
+      await dispatch(openNotification(notification));  
     } catch (error) {
       console.log(error)
     }
@@ -295,6 +339,7 @@ function CategoryTable(props) {
       <Header open={open} onClose={handleDrawerClose} title="Category Management" />
       <main className={classes.content} >
         <div className={classes.toolbar} />
+        <Notifications/>
         <Paper className={classes.root} align="center">
           <div className={classes.column}>
             <FormControl className={classes.formControl}>

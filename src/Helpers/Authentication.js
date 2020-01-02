@@ -13,13 +13,12 @@ class Authentication extends Component {
     }   
     componentDidMount () {
         const jwt = getJwt();
-        console.log ("jwt", jwt)
         if (!jwt){
-            this.props.history.push('/LoginPage');
+            this.props.history.push('/SignInPage');
         }
         else if(jwt === undefined || jwt === null || jwt === ''){
             localStorage.removeItem ('x-access-token');
-            this.props.history.push('/LoginPage');
+            this.props.history.push('/SignInPage');
         }
         else{
             this.props.history.push('/Home');

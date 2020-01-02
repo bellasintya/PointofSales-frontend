@@ -43,6 +43,8 @@ import LastPageIcon from '@material-ui/icons/LastPage';
 //for sort by
 import FormControl from '@material-ui/core/FormControl';
 import InputAdornment from '@material-ui/core/InputAdornment';
+import Notifications from './Notifications';
+import { openNotification } from '../Public/Redux/Action/notification';
 
 const useStyles = makeStyles({
   root: {
@@ -190,8 +192,22 @@ function ProductTable(props) {
   const submitAdd = async (e) => {
     e.preventDefault();
     try {
-      await dispatch(postProduct(input));
-      setAddModal(!addModal)
+      const result = await dispatch(postProduct(input));
+      let notification = {};
+      if (result.value.data.status === 400) {
+        notification = {
+          variant: 'error',
+          message: result.value.data.message,
+        }
+        setAddModal(addModal);
+      } else {
+        notification = {
+          variant: 'success',
+          message: result.value.data.message,
+        }
+        setAddModal(!addModal);
+      }
+      await dispatch(openNotification(notification));            
     } catch (error) {
       console.log(error)
     }
@@ -200,8 +216,22 @@ function ProductTable(props) {
   const submitEdit = async (e) => {
     e.preventDefault();
     try {
-      await props.dispatch(patchProduct(input))
-      setEditModal(!editModal)
+      const result = await props.dispatch(patchProduct(input))
+      let notification = {};
+      if (result.value.data.status === 400) {
+        notification = {
+          variant: 'error',
+          message: result.value.data.message,
+        }
+        setEditModal(editModal);
+      } else {
+        notification = {
+          variant: 'success',
+          message: result.value.data.message,
+        }
+        setEditModal(!editModal);
+      }
+      await dispatch(openNotification(notification)); 
     } catch (error) {
       console.log(error);
     }
@@ -210,8 +240,22 @@ function ProductTable(props) {
   const submitDelete = async (e) => {
     e.preventDefault();
     try {
-      await props.dispatch(deleteProduct(input))
-      setDeleteModal(!deleteModal)
+      const result = await props.dispatch(deleteProduct(input));
+      let notification = {};
+      if (result.value.data.status === 400) {
+        notification = {
+          variant: 'error',
+          message: result.value.data.message,
+        }
+        setDeleteModal(deleteModal);
+      } else {
+        notification = {
+          variant: 'success',
+          message: result.value.data.message,
+        }
+        setDeleteModal(!deleteModal);
+      }
+      await dispatch(openNotification(notification));            
     } catch (error) {
       console.log(error);
     }
@@ -315,6 +359,7 @@ function ProductTable(props) {
       <Header open={open} onClose={handleDrawerClose} title="Product Management" />
       <main className={classes.content} >
         <div className={classes.toolbar} />
+        <Notifications />
         <Paper className={classes.root} align="center">
           <div className={classes.column}>
             <FormControl className={classes.formControl}>

@@ -150,7 +150,6 @@ const Header = props => {
   }
 
   React.useEffect(() => {
-    console.log(display)
   }, [display]);
 
   return (
@@ -234,6 +233,7 @@ const Header = props => {
             Logout
           </Button>{' '}
         </DialogActions>
+        <br/>
       </Dialog>
     </div>
   );

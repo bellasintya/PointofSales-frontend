@@ -6,7 +6,6 @@ export const openNotification = (notification) => {
 }
 export const closeNotification = (notification) => {
     return {
-        type: 'CLOSE_NOTIFICATION',
-        notification
+        type: 'CLOSE_NOTIFICATION'
     }
 }

@@ -42,7 +42,9 @@ const category = (state = initialState, action) => {
                 isRejected: true
             }
         case 'POST_CATEGORY_FULFILLED':
-            state.categoryList.push(action.payload.data.result);
+            if (action.payload.data.status === 200) {
+                state.categoryList.push(action.payload.data.result);
+            }
             return {
                 ...state,
                 isLoading: false,
@@ -63,17 +65,20 @@ const category = (state = initialState, action) => {
                 isRejected: true
             }
         case 'PATCH_CATEGORY_FULFILLED':
-            const dataAfterPatch = state.categoryList.map (category => {
-                if (category.id_category === parseInt(action.payload.data.result.id_category)) {
-                    return action.payload.data.result;
-                }
-                return category;
-            });
+            if (action.payload.data.status === 200) {
+                const dataAfterPatch = state.categoryList.map(category => {
+                    if (category.id_category === parseInt(action.payload.data.result.id_category)) {
+                        return action.payload.data.result;
+                    }
+                    return category;
+                });
+                state.categoryList = dataAfterPatch;
+            } 
             return {
                 ...state,
                 isLoading: false,
                 isFulfilled: true,
-                categoryList: dataAfterPatch,
+                categoryList: state.categoryList,
             }
         case 'DELETE_CATEGORY_PENDING':
             return {
@@ -89,14 +94,17 @@ const category = (state = initialState, action) => {
                 isRejected: true
             }
         case 'DELETE_CATEGORY_FULFILLED':
-            const dataAfterDelete = state.categoryList.filter(
-                category => category.id_category !== parseInt(action.payload.data.result.id_category)
-            );
+            if (action.payload.data.status === 200) {
+                const dataAfterDelete = state.categoryList.filter(
+                    category => category.id_category !== parseInt(action.payload.data.result.id_category)
+                );
+                state.categoryList = dataAfterDelete;
+            }
             return {
                 ...state,
                 isLoading: false,
                 isFulfilled: true,
-                categoryList: dataAfterDelete,
+                categoryList: state.categoryList,
             }
         default:
             return state;

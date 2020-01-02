@@ -2,10 +2,8 @@ const initialState = {
     variant: '',
     message: '',
     isOpen : false,
-    isClosed: false,
 }
 
-//insert initial state 
 const notification = (state = initialState, action) => {
     switch (action.type) {
         case 'OPEN_NOTIFICATION':
@@ -14,13 +12,12 @@ const notification = (state = initialState, action) => {
                 variant: action.notification.variant,
                 message: action.notification.message,
                 isOpen: true,
-                isClosed: false,
             }
 
         case 'CLOSE_NOTIFICATION':
             return {
                 ...state,
-                isClosed: true,
+                isOpen: false,
             }
         default:
             return state;

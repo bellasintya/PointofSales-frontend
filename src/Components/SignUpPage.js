@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { Alert } from 'react-bootstrap';
 import Avatar from '@material-ui/core/Avatar';
 import Button from '@material-ui/core/Button';
 import CssBaseline from '@material-ui/core/CssBaseline';
@@ -14,7 +13,7 @@ import { connect, useDispatch, useSelector } from 'react-redux';
 import Logo from '../Style/image/logo.png';
 import Notifications from './Notifications';
 import { openNotification } from '../Public/Redux/Action/notification';
-
+ 
 const useStyles = makeStyles(theme => ({
     root: {
         height: '100vh',
@@ -62,7 +61,6 @@ function SignUpPage(props) {
     };
 
     const [input, setInput] = useState(formState);
-    const [show, setShow] = useState(true);
 
     const handleChange = nameChange => e => {
         setInput({
@@ -110,6 +108,7 @@ function SignUpPage(props) {
             <Grid item xs={false} sm={4} md={7} className={classes.image} />
             <Grid item xs={12} sm={8} md={5} component={Paper} elevation={6} square>
                 <div className={classes.paper}>
+                    <Notifications />
                     <Avatar className={classes.avatar}>
                         <img className={classes.avatarImage} src={Logo} alt="logo"/>
                     </Avatar>
@@ -117,22 +116,6 @@ function SignUpPage(props) {
                         Sign up
                     </Typography>
                     <form className={classes.form} noValidate>
-                        {registerResponse.status === 400 ? (
-                            <Notifications show='true' 
-                                message={registerResponse.message} 
-                                status='error'
-                                />
-                        ) : ("")}
-
-                        {registerResponse.status === 200 ? (
-                            <Alert
-                                show={show}
-                                variant="success"
-                                onClose={() => setShow(!show)}
-                            >
-                                <p>{registerResponse.message}</p>
-                            </Alert>
-                        ) : ("")}
                         <TextField
                             autoComplete="full_name"
                             name="full_name"
