@@ -4,6 +4,7 @@ import CssBaseline from '@material-ui/core/CssBaseline';
 import '../Style/font/style.css';
 import Header from './Header';
 import { withRouter } from 'react-router-dom';
+import { Chart } from 'primereact/chart';
 
 const drawerWidth = 200;
 
@@ -39,7 +40,7 @@ const useStyles = makeStyles(theme => ({
   dense: {
     marginTop: theme.spacing(2),
   },
-  drawer: {    
+  drawer: {
     width: drawerWidth,
     flexShrink: 0,
     whiteSpace: 'nowrap',
@@ -92,26 +93,42 @@ const useStyles = makeStyles(theme => ({
 
 const History = props => {
   const classes = useStyles();
-  // const theme = useTheme();
-
-  const [open, setOpen] = React.useState(false);  
-
-  // const handleDrawerOpen = () => {
-  //   setOpen(true);
-  // };
+  const [open, setOpen] = React.useState(false);
 
   const handleDrawerClose = () => {
     setOpen(false);
   };
-  
+
+  const data = {
+    labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+    datasets: [
+      {
+        label: 'First Dataset',
+        data: [65, 59, 80, 81, 56, 55, 40],
+        fill: false,
+        backgroundColor: '#42A5F5',
+        borderColor: '#42A5F5'
+      },
+      {
+        label: 'Second Dataset',
+        data: [28, 48, 40, 19, 86, 27, 90],
+        fill: false,
+        backgroundColor: '#66BB6A',
+        borderColor: '#66BB6A'
+      }
+    ]
+  };
+
   return (
     <div className={classes.root}>
       <CssBaseline />
-      <Header open={open} onClose={handleDrawerClose} title="History"/>
-
+      <Header open={open} onClose={handleDrawerClose} title="History" />
       <main className={classes.content}>
         <div className={classes.toolbar} />
-
+        <div className="content-section implementation">
+          <h3>Basic</h3>
+          <Chart type="line" data={data} />
+        </div>
       </main>
     </div>
   );
